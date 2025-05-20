@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Blue Wave Hotel - Hotel Reservation System</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      color: #333;
+      background: url('https://images.unsplash.com/photo-1542314831-068cd1dbfeeb') no-repeat center center fixed;
+      background-size: cover;
+      animation: fadein 1.5s ease-in;
+    }
+    @keyframes fadein {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1em;
+      padding: 1em;
+      background-color: rgba(30, 42, 56, 0.9);
+      color: white;
+      animation: slideDown 1s ease-in-out;
+    }
+    @keyframes slideDown {
+      from { transform: translateY(-100%); }
+      to { transform: translateY(0); }
+    }
+    .header img {
+      height: 45px;
+    }
+    .container {
+      max-width: 600px;
+      margin: 40px auto;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 2em;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      animation: fadein 1.5s ease-in;
+    }
+    h2 {
+      text-align: center;
+      color: #212529;
+      margin-bottom: 1em;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 0.8em;
+      margin-bottom: 1em;
+      border-radius: 6px;
+    }
+    input, select {
+      border: 1px solid #ced4da;
+      background-color: #fff;
+    }
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .hidden { display: none; }
+    .link { text-align: center; margin-top: 1em; }
+    .link a { color: #007bff; text-decoration: none; cursor: pointer; }
+    .room-image {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 1em;
+    }
+    .receipt {
+      background: #e9f7ef;
+      border: 1px solid #c3e6cb;
+      padding: 1em;
+      margin-top: 1.5em;
+      border-radius: 8px;
+      color: #155724;
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <img src="https://cdn-icons-png.flaticon.com/512/2972/2972435.png" alt="HotelSys Logo" />
+  <h1>Blue Wave Hotel</h1>
+</div>
+
+<!-- Welcome Page -->
+<div class="container" id="welcomePage">
+  <h2>Welcome to Blue Wave Hotel</h2>
+  <p style="text-align:center;">Welcome! We appreciate you choosing Blue Wave Hotel. Please take a moment to relax and enjoy a smooth browsing experience.</p>
+  <button onclick="goTo('registerPage')">Get Started</button>
+</div>
+
+<!-- Registration Page -->
+<div class="container hidden" id="registerPage">
+  <h2>Create an Account</h2>
+  <form onsubmit="event.preventDefault(); goTo('loginPage')">
+    <input type="text" placeholder="Full Name" required />
+    <input type="email" placeholder="Email Address" required />
+    <input type="text" placeholder="Username" required />
+    <input type="password" placeholder="Password" required />
+    <input type="password" placeholder="Confirm Password" required />
+    <button type="submit">Register</button>
+  </form>
+  <div class="link">
+    Already have an account? <a onclick="goTo('loginPage')">Log In</a>
+  </div>
+</div>
+
+<!-- Login Page -->
+<div class="container hidden" id="loginPage">
+  <h2>Log In</h2>
+  <form onsubmit="event.preventDefault(); goTo('bookingPage')">
+    <input type="text" placeholder="Username or Email" required />
+    <input type="password" placeholder="Password" required />
+    <button type="submit">Login</button>
+  </form>
+  <div class="link">
+    Don't have an account? <a onclick="goTo('registerPage')">Register</a>
+  </div>
+</div>
+
+<!-- Booking Page -->
+<div class="container hidden" id="bookingPage">
+  <h2>Book a Room</h2>
+  <img id="roomImage" class="room-image" src="" alt="Room Preview" style="display: none;">
+  <form onsubmit="event.preventDefault(); proceedToPayment()">
+    <select id="roomType" required onchange="updateRoomImage()">
+      <option value="" disabled selected>Select Room Type</option>
+      <option value="Deluxe Room" data-price="2000" data-img="https://images.unsplash.com/photo-1600566753549-6f4114c02b53">Deluxe Room - ₱2,000</option>
+      <option value="Standard Room" data-price="1200" data-img="https://images.unsplash.com/photo-1600585154340-be6161a56a0c">Standard Room - ₱1,200</option>
+      <option value="Family Suite" data-price="3500" data-img="https://images.unsplash.com/photo-1613977257363-df2e3bdb5cfb">Family Suite - ₱3,500</option>
+    </select>
+    <input type="date" required />
+    <input type="text" id="customerName" placeholder="Full Name" required />
+    <input type="email" id="customerEmail" placeholder="Email Address" required />
+    <button type="submit">Continue to Payment</button>
+  </form>
+  <div class="link">
+    <button onclick="cancelBooking()">Cancel Booking</button>
+    <br><br>
+    <a onclick="goTo('loginPage')">Log Out</a>
+  </div>
+</div>
+
+<!-- Payment Page -->
+<div class="container hidden" id="paymentPage">
+  <h2>Pay with GCash</h2>
+  <p style="text-align:center;">Scan the QR code below using your GCash app to complete the payment of ₱<span id="gcashAmount"></span>.</p>
+   <img src="https://epins.biz/bin/2023/07/gcash-qr.png.webp" jsaction="" class="sFlh5c FyHeAf iPVvYb" style="width:100%;max-width:300px;display:block;margin:0 auto 1em;">
+  <button onclick="showReceipt({id: 'GCASH123456'})">Confirm Payment</button>
+  <div class="link">
+    <a onclick="backToBooking()">Back to Booking</a>
+  </div>
+</div>
+
+<!-- Receipt Page -->
+<div class="container hidden" id="receiptPage">
+  <h2>Booking Confirmation</h2>
+  <div class="receipt" id="receiptDetails"></div>
+  <div class="link">
+    <a onclick="goTo('bookingPage')">Book Another Room</a>
+  </div>
+</div>
+
+<script>
+  let selectedRoom = "";
+  let price = 0;
+
+  function goTo(pageId) {
+    const pages = ['welcomePage', 'registerPage', 'loginPage', 'bookingPage', 'paymentPage', 'receiptPage'];
+    pages.forEach(id => document.getElementById(id).classList.add('hidden'));
+    document.getElementById(pageId).classList.remove('hidden');
+  }
+
+  function updateRoomImage() {
+    const roomSelect = document.getElementById("roomType");
+    const imgSrc = roomSelect.options[roomSelect.selectedIndex].getAttribute("data-img");
+    const roomImage = document.getElementById("roomImage");
+    roomImage.src = imgSrc;
+    roomImage.style.display = 'block';
+  }
+
+  function proceedToPayment() {
+    const roomSelect = document.getElementById("roomType");
+    const selectedOption = roomSelect.options[roomSelect.selectedIndex];
+    selectedRoom = selectedOption.value;
+    price = selectedOption.getAttribute("data-price");
+    document.getElementById("gcashAmount").textContent = price;
+    goTo('paymentPage');
+  }
+
+  function showReceipt(details) {
+    const name = document.getElementById("customerName").value;
+    const email = document.getElementById("customerEmail").value;
+    const receipt = document.getElementById("receiptDetails");
+    receipt.innerHTML = `
+      <p><strong>Guest Name:</strong> ${name}</p>
+      <p><strong>Email:</strong> ${email}</p>
+      <p><strong>Room Type:</strong> ${selectedRoom}</p>
+      <p><strong>Amount Paid:</strong> ₱${price}</p>
+      <p><strong>Transaction ID:</strong> ${details.id}</p>
+      <p>Thank you for booking with <strong>Blue Wave Hotel</strong>!</p>
+    `;
+    goTo('receiptPage');
+  }
+
+  function cancelBooking() {
+    if (confirm("Are you sure you want to cancel this booking?")) {
+      document.getElementById("roomType").value = "";
+      document.getElementById("customerName").value = "";
+      document.getElementById("customerEmail").value = "";
+      document.querySelector("input[type='date']").value = "";
+      document.getElementById("roomImage").style.display = "none";
+      alert("Your booking has been canceled.");
+    }
+  }
+
+  function backToBooking() {
+    goTo('bookingPage');
+  }
+
+  window.onload = () => goTo('welcomePage');
+</script>
+
+</body>
+</html>
